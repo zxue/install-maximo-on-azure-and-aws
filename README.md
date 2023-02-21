@@ -1,0 +1,1 @@
+# install-maximon-on-azure
