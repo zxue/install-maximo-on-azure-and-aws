@@ -111,19 +111,19 @@ ansible-playbook ansible-devops/playbooks/oneclick_core.yml --connection=local -
 
 ### Look Up MAS Admin Superuser Credentials
 
-[placeholder]
+placeholder
 
 ### Download and Configure MAS Certificate
 
-[placeholder]
+placeholder
 
 ### Update User Data Service (UDS)
 
-[placeholder]
+placeholder
 
 ## Install MAS Manage
 
-[placeholder]
+placeholder
 
 ```
 ansible-playbook ibm.mas_devops.oneclick_add_manage
@@ -131,4 +131,4 @@ ansible-playbook ibm.mas_devops.oneclick_add_manage
 
 ## Install Demo Data for MAS Manage
 
-[placeholder]
+placeholder
