@@ -42,21 +42,71 @@ export MAS_APP_ID=manage
 - UDS_CONTACT_FIRSTNAME=firstname
 - UDS_CONTACT_LASTNAME=lastname
 - UDS_STORAGE_CLASS is the storage class used for MAS deployment, e.g. ocs-storagecluster-ceph-rbd
-- OCP_INGRESS_TLS_SECRET_NAME is the ingress route secret name. 
+- OCP_INGRESS_TLS_SECRET_NAME is the ingress route tls certificate name. 
 - DB2_INSTANCE_NAME is the db2 database instance name, e.g. db2inst
 - MAS_APP_ID is manage if MAS Manage is to be installed
 
 ### Locate OpenShift Ingress Route Secret Name
 
+The OCP_INGRESS_TLS_SECRET_NAME environment variable is optional in most cases, but it must be specified for the OpenShift cluster on Azure, mainly because it is a randomly assigned name. 
+
+To find it, log in to the OpenShift cluster. Search "ingress" under Workloads | Secrets. Sort the list by Type. Note the name in the namespace of "openshift-ingress" and type of "kubernetes.io/tls", e.g. a85b5fa3-a6b3-4432-8b6d-b373773ce84e-ingress. Alternatively, you can locate the name using the `oc` command.
+
+![OCP Ingress TLS Secret Name](media/ocp-ingress-tls-secret-name.png)
+
+### Install ODF Storage Classes
+
+Maximo Application Suite and its dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:
+  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.
+  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.
+
+By default, an OpenShift cluster on Azure comes with two storage classes. While it is possible to use them to run the Ansible playbooks, it is much easier to work with OpenShift® Data Foundation (ODF), previously known as OpenShift Container Storage (OCS). 
+
+  - Storage class (ReadWriteOnce): managed-csi
+  - Storage class (ReadWriteMany): managed-premium
+
+To install ODF, search "ODF" under Operators | OperatorHub from the OpenShift console. Choose the default options to complete the step. 
+
+![OpenShift Data Foundation Install](media/ocp-odf-install.png)
+
+Once ODF is installed, create a StorageSystem instance. Create 2 TiB or more storage on at least 3 worker nodes.
+
+![OpenShift Storage System](media/odf-storage-system.png)
+
+When the StorageSystem instance is created, three new storage classes are added. By default, the Ansible playbooks use the "
+ocs-storagecluster-ceph-rbd" storage class.
+
+![OpenShift Storage System](media/ocp-storage-classes.png)
 
 ### Launch Docker Container
 
+Install docker on your computer, and run the docker command to launch the MAS cli instance. Alternatively, you can run Anisbole playbooks locally, but the tradeoff is that you will need to install all dependencies, e.g python3. 
+
+```
+docker run -ti --rm --pull always -v ~/masconfig:/mascli/masconfig quay.io/ibmmas/cli
+```
+
+- ti: run the container interactively; allocate a pseud- TTY (pseudo terminals)​
+- rm: remove the container when it exits​
+- pull always: pull down image before running​
+- v: bind mount a volume. Local machine folder “~/masconfig”; container folder: “/mascli/masconfig”​
+- quay.io/ibmmas/cli: downloaded the mas cli image. Run "docker images" to see images available.
+
 ### Run Ansible Playbook to Install MAS Core
+
+Log in to OpenShift and run the playbook to install MAS Core. 
+
+```
+oc login --token=xxx --server=https://api.xxx.westus.aroapp.io:6443
+
+ansible-playbook ibm.mas_devops.oneclick_core
+
+```
+
+Alternatively, you can run the playbook locally on a remote host, as explained in the [Ansible](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_delegation.html) documentation. The `-v` option is verbose mode (-vvv for more, -vvvv to enable connection debugging).
 
 ```
 ansible-playbook ansible-devops/playbooks/oneclick_core.yml --connection=local -vvv
-
-ansible-playbook ibm.mas_devops.oneclick_core
 ```
 
 ### 
