@@ -78,7 +78,7 @@ ocs-storagecluster-ceph-rbd" storage class.
 
 ![OpenShift Storage System](media/ocp-storage-classes.png)
 
-### Launch Docker Container
+### Start the Docker Container
 
 Install docker on your computer, and run the docker command to launch the MAS cli instance. Alternatively, you can run Ansible playbooks locally, but the tradeoff is that you will need to install all dependencies, e.g python3. 
 
@@ -94,7 +94,7 @@ docker run -ti --rm --pull always -v ~/masconfig:/mascli/masconfig quay.io/ibmma
 
 ### Run Ansible Playbook to Install MAS Core
 
-Log in to OpenShift and run the playbook to install MAS Core. 
+Log in to OpenShift and run the playbook to install MAS Core. This step may take one hour or longer.
 
 ```
 oc login --token=xxx --server=https://api.xxx.westus.aroapp.io:6443
@@ -123,7 +123,7 @@ Copy the values for password and username. Note that the password appears first 
 
 When navigating to the Maximo administration console in the browser, you are promoted with the "NET::ERR_CERT_AUTHORITY_INVALID". That is because the self-signed certificate is not trusted on your computer. 
 
-![Maximo API URL error](media/maximo-api-url-error.png)
+![Maximo Admin URL Error](media/maximo-admin-url-error.png)
 
 A quick workaround is that you press the "Advanced" button to continue and change "admin" to "api" in the URL address. You will see a screen with an error message that looks like the following. Change "api" back to "admin" in the URL address. You should land on the administration screen.
 
@@ -165,15 +165,21 @@ Go back to the User Data Services (UDS) in the Maximo administration console. Op
 - Replace the API key with the value you obtained previously.
 - Delete three certificates named "part1", "part2" and "part3". Add the first certificate and name it "basCert1" using the first part of the certificates you obtained previously. Add the second certificate and name it "basCert2" using the second part of the certificates you obtained previously. Click "Confirm" to save the certificates. Click "Save" to save the changes.
 
-The update of UDS may take 15 minutes. If it takes longer than that, chances are that the changes are not working and you will need to repeat the process with the correct values.
+The update of UDS settings may take 15 minutes and you will see a green status icon if successful. If it takes longer than that, chances are that the changes are not working and you will need to repeat the process with the correct values.
 
 ## Install DB2 and Activate MAS Manage
 
-placeholder
+We are now ready to install and activate Maximo Manage. Run the Ansible playbook below. A DB2 database will be created automatically, and the Manage application will be deployed. This step can take two hours or longer.
 
 ```
 ansible-playbook ibm.mas_devops.oneclick_add_manage
 ```
+
+Note that if you want to use an existing database, you can skip this step and go the database configuration instead.
+
+## Review and Connect to the Database
+
+placeholder
 
 ## Install Demo Data for MAS Manage
 
