@@ -33,7 +33,7 @@ export DB2_INSTANCE_NAME=db2inst
 export MAS_APP_ID=manage 
 ```
 
-- MAS_INSTANCE_ID is an arbitary string for the installation, e.g. inst1 
+- MAS_INSTANCE_ID is an arbitrary string for the installation, e.g. inst1 
 - IBM_ENTITLEMENT_KEY is the MAS license key from IBM.
 - SLS_LICENSE_ID is a 12 digit hexadecimal number, e.g. 756A06D0C216. It is contained in the the MAS license key.
 - MAS_CONFIG_DIR is the folder where the license keys are stored, e.g. masconfig, which is mapped to a docker container folder, e.g. /mascli/masconfig
@@ -298,7 +298,7 @@ View progress:
   https://console-openshift-console.apps.xxx.h18p.p1.openshiftapps.com/pipelines/ns/mas-aws1-pipelines
 ```
 
-You can take the installation status from the OpenShift console. 
+You can check the installation status from the OpenShift console. 
 
 ![OCP Pipelines Status](media/mas-install-pipelines.png)
 
