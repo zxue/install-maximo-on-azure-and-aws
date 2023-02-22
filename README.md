@@ -12,5 +12,61 @@ You can install Maximo using the BYOL option, or purchase Maximo from Azure Mark
 2. New Red Hat® OpenShift® cluster by using the User Provisioned Infrastructure (UPI)
 3. Existing Red Hat® OpenShift® cluster
 
-This document covers the third option, installing MAS on an existing OpenShift cluster through IBM TechZone.
+This document covers the third option, installing MAS on an existing OpenShift cluster. Note that the code has been tested on a docker container on MacBook using a 5 worker-node OpenShift cluster hosted through IBM TechZone. To deploy MAS on a new cluster, you will need to obtain a domain name, e.g. xyz.com, and a subdomain name, e.g. azureocp.xyz.com, for the OpenShift cluster.
+
+## Install MAS Core
+
+First, define the environment variables. 
+
+```
+export MAS_INSTANCE_ID=poc10
+export IBM_ENTITLEMENT_KEY=xxx
+export MAS_CONFIG_DIR=/mascli/masconfig
+export SLS_LICENSE_ID=xxx
+export SLS_LICENSE_FILE=/mascli/masconfig/license.dat
+export UDS_CONTACT_EMAIL=xxx@xxx.com
+export UDS_CONTACT_FIRSTNAME=firstname
+export UDS_CONTACT_LASTNAME=lastname
+export UDS_STORAGE_CLASS=ocs-storagecluster-ceph-rbd
+export OCP_INGRESS_TLS_SECRET_NAME=xxx-ingress
+export DB2_INSTANCE_NAME=db2inst
+export MAS_APP_ID=manage 
+```
+
+- MAS_INSTANCE_ID is an arbitary string for the installation, e.g. inst1 
+- IBM_ENTITLEMENT_KEY is the MAS license key from IBM.
+- SLS_LICENSE_ID is a 12 digit hexadecimal number, e.g. 756A06D0C216. It is contained in the the MAS license key.
+- MAS_CONFIG_DIR is the folder where the license keys are stored, e.g. masconfig, which is mapped to a docker container folder, e.g. /mascli/masconfig
+- SLS_LICENSE_FILE is the license key file name and location, e.g. /mascli/masconfig/license.dat
+- UDS_CONTACT_EMAIL can be your work or personal email address
+- UDS_CONTACT_FIRSTNAME=firstname
+- UDS_CONTACT_LASTNAME=lastname
+- UDS_STORAGE_CLASS is the storage class used for MAS deployment, e.g. ocs-storagecluster-ceph-rbd
+- OCP_INGRESS_TLS_SECRET_NAME is the ingress route secret name. 
+- DB2_INSTANCE_NAME is the db2 database instance name, e.g. db2inst
+- MAS_APP_ID is manage if MAS Manage is to be installed
+
+### Locate OpenShift Ingress Route Secret Name
+
+
+### Launch Docker Container
+
+### Run Ansible Playbook to Install MAS Core
+
+```
+ansible-playbook ansible-devops/playbooks/oneclick_core.yml --connection=local -vvv
+
+ansible-playbook ibm.mas_devops.oneclick_core
+```
+
+### 
+
+## Run Ansible Playbook to Install MAS Manage
+
+```
+ansible-playbook ibm.mas_devops.oneclick_add_manage
+```
+
+## Install Demo Data for MAS Manage
+
 
