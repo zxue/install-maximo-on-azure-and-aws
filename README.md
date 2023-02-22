@@ -109,9 +109,15 @@ Alternatively, you can run the playbook locally on a remote host, as explained i
 ansible-playbook ansible-devops/playbooks/oneclick_core.yml --connection=local -vvv
 ```
 
-### 
+### Look Up MAS Admin Superuser Credentials
 
-## Run Ansible Playbook to Install MAS Manage
+
+### Download and Configure MAS Certificate
+
+
+### Update User Data Service (UDS)
+
+## Install MAS Manage
 
 ```
 ansible-playbook ibm.mas_devops.oneclick_add_manage
