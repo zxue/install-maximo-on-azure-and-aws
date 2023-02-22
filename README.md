@@ -12,7 +12,9 @@ You can install Maximo using the BYOL option, or purchase Maximo from Azure Mark
 2. New Red Hat® OpenShift® cluster by using the User Provisioned Infrastructure (UPI)
 3. Existing Red Hat® OpenShift® cluster
 
-This document covers the third option, installing MAS on an existing OpenShift cluster. Note that the code has been tested on a docker container on MacBook using a 5 worker-node OpenShift cluster hosted through IBM TechZone. To deploy MAS on a new cluster, you will need to obtain a domain name, e.g. xyz.com, and a subdomain name, e.g. azureocp.xyz.com, for the OpenShift cluster.
+This document covers the third option, installing MAS on an existing OpenShift cluster. The primary purpose of this document is to share lessons learned. Readers should reference official documentation from IBM, Microsoft and Amazon for the latest updates.
+
+Note that the code has been tested on a docker container on MacBook using a 5 worker-node OpenShift cluster hosted through IBM TechZone. To deploy MAS on a new cluster, you will need to obtain a domain name, e.g. xyz.com, and a subdomain name, e.g. azureocp.xyz.com, for the OpenShift cluster.
 
 ## Define Environment Variables
 
