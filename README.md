@@ -5,7 +5,7 @@ reliability applications across the business. Since the 8.x releases, MAS has be
 
 ![MAS Architecture](media/mas-architecture.png)
 
-Before installing Maximo Application Suite (MAS 8.x or higher) on Microsoft Azure, check the [prerequisites](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=azure-overview), incluidng Azure subscriptions, IBM Maximo license and entitlement key, Red Hat account and pull sceret, domain and subdomain names for your OpenShift cluster.
+Before installing Maximo Application Suite (MAS 8.x or higher) on Microsoft Azure, check the [prerequisites](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=azure-overview), including Azure subscriptions, IBM Maximo license and entitlement key, Red Hat account and pull secret, domain and subdomain names for your OpenShift cluster.
 
 You can install Maximo using the BYOL option, or purchase Maximo from Azure Marketplace and then install it on Azure. With the BYOL option, you can install Maximo on a new OpenShift cluster, on an existing cluster, or 
 1. New Red Hat® OpenShift® cluster by using the Installer Provisioned Infrastructure (IPI)
@@ -80,7 +80,7 @@ ocs-storagecluster-ceph-rbd" storage class.
 
 ### Launch Docker Container
 
-Install docker on your computer, and run the docker command to launch the MAS cli instance. Alternatively, you can run Anisbole playbooks locally, but the tradeoff is that you will need to install all dependencies, e.g python3. 
+Install docker on your computer, and run the docker command to launch the MAS cli instance. Alternatively, you can run Ansible playbooks locally, but the tradeoff is that you will need to install all dependencies, e.g python3. 
 
 ```
 docker run -ti --rm --pull always -v ~/masconfig:/mascli/masconfig quay.io/ibmmas/cli
@@ -121,13 +121,53 @@ Copy the values for password and username. Note that the password appears first 
 
 ### Download and Configure MAS Certificate
 
-placeholder
+When navigating to the Maximo administration console in the browser, you are promoted with the "NET::ERR_CERT_AUTHORITY_INVALID". That is because the self-signed certificate is not trusted on your computer. 
+
+![Maximo API URL error](media/maximo-api-url-error.png)
+
+A quick workaround is that you press the "Advanced" button to continue and change "admin" to "api" in the URL address. You will see a screen with an error message that looks like the following. Change "api" back to "admin" in the URL address. You should land on the administration screen.
+
+![Maximo API URL error](media/maximo-api-url-error.png)
+
+For Maximo deployment on Azure, it is necessary that the certificate issue be addressed permanently. Go to Routes under Networking from the OpenShift console. Select the MAS namespace, e.g. mas-poc10-core, and open the admin route screen.
+
+![Maximo Admin Route](media/maximo-admin-route.png)
+
+Scroll down the screen to find the CA certificate. Copy the certificate and save it in a file, e.g. "ca.crt".
+
+![Maximo Admin Route](media/maximo-admin-route-certificate.png)
+
+On the MacBook, open the Keychain Access setting. Click the import items from the File menu. Locate the certificate file and import it. Select the imported item from the list, which is likely named something like "public.poc10.mas.imb.com". Double click on it and change the value of "when using this certificate" under Trust to "Always trust". Save the setting by entering your MacBook login password if promoted. You will notice that the icon next to the name from a red "x" to to a blue "+".
+
+![Maximo Admin Route](media/maximo-admin-route-certificate-trust.png)
+
+With that, you can open the Maximo administration application in the browser and log in without any certificate error prompt.
 
 ### Update User Data Service (UDS)
 
-placeholder
+For Maximo deployment on Azure, you may notice an error from the command line that looks like the following. This error must be addressed before we activate the Manage application.
 
-## Install MAS Manage
+```
+BAS configuration was unable to be verified: Connecting to BAS (verify=/tmp/bas.pem) at https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io failed: SSLError: HTTPSConnectionPool(host='uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io', port=443): Max retries exceeded with url: /v1/status (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get issuer certificate (_ssl.c:1131)')))
+```
+
+Log in to the Maximo administration console. Navigate to the admin with "/initialsetup", or click on the Configurations on the left side. We will need to update the URL, the AIP key, and the certificates. We will find these values from the OpenShift cluster.
+
+![User Data Services](media/user-data-services.png)
+
+Navigate to Secrets under Workloads from the OpenShift console. Search "event-api". Open the "event-api-secrets" screen, and copy the apikey value. Then open the "event-api-certs" screen, and copy the tls.crt value. Note that there are two certificates in the text. The first part includes all the text starting with the text "-----BEGIN CERTIFICATE-----" and ending with "-----END CERTIFICATE-----". The second part is the remaining text.
+
+![OCP Event API Secrets](media/ocp-event-api-secrets.png)
+
+Go back to the User Data Services (UDS) in the Maximo administration console. Open the edit screen.
+
+- Replace the URL from the existing value, e.g. "https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io" to "".
+- Replace the API key with the value you obtained previously.
+- Delete three certificates named "part1", "part2" and "part3". Add the first certificate and name it "basCert1" using the first part of the certificates you obtained previously. Add the second certificate and name it "basCert2" using the second part of the certificates you obtained previously. Click "Confirm" to save the certificates. Click "Save" to save the changes.
+
+The update of UDS may take 15 minutes. If it takes longer than that, chances are that the changes are not working and you will need to repeat the process with the correct values.
+
+## Install DB2 and Activate MAS Manage
 
 placeholder
 
@@ -138,3 +178,24 @@ ansible-playbook ibm.mas_devops.oneclick_add_manage
 ## Install Demo Data for MAS Manage
 
 placeholder
+
+
+## Estimate Maximo License Requirements for Dev or Test Environment
+
+Assuming that we install Maximo Manage only, with 2 administrators and 8 concurrent users, we will need approximately 150 AppPoints. 
+
+| **Users**                    | **AppPoints** | **Quantity** | **Total** |
+| ---------------------------- | ------------- | ------------ | --------- |
+| Administrator user (Premium) | 15            | 2            | 30        |
+| Application user (Premium)   | 15            | 8            | 120       |
+|                              |               |              |           |
+| Grand Total AppPoints        |               |              | **150**   |
+
+Premium concurrent users consume 15 AppPoints, with the same login/logout logic.
+- Premium users have all the privileges of both base and limited users, plus Manage Industry Solutions (O&G, Aviation, Transportation, Utilities, Nuclear, Civil Infrastructure) and add-ons, Predict, Health and Predict – Utilities, and Visual Inspection.
+- Said in an easier way, premium users have access to everything in the MAS suite.
+ 
+Premium administrator users consume 15 AppPoints.
+- Application administrators administrate one or more applications, adds and assigns users to these applications, and uses the application-specific user interfaces to manage further user privileges.
+- Suite administrator manages overarching system configuration settings from the suite administration pane.
+ 
