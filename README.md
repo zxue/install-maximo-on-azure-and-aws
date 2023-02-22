@@ -1,4 +1,4 @@
-# Install Maximo On Azure
+# Install Maximo On Microsoft Azure and Amazon AWS
 
 The Maximo Application Suite allows users to sign on to a single, integrated platform to access key monitoring, maintenance, and
 reliability applications across the business. Since the 8.x releases, MAS has been expanded to include Manage, the enterprise assets management application that exists in version 7.6.x and previous releases, and several new applications, Health, Monitor, Predict, Visual Inspection, IoT and the mobile app. While you can deploy MAS on-prem or in a public cloud, it requires Red Hat's OpenShift container platform as the underlying infrastructure. Below is a high-level Maximo architecture and core components.
@@ -42,11 +42,11 @@ export MAS_APP_ID=manage
 - UDS_CONTACT_FIRSTNAME=firstname
 - UDS_CONTACT_LASTNAME=lastname
 - UDS_STORAGE_CLASS is the storage class used for MAS deployment, e.g. ocs-storagecluster-ceph-rbd
-- OCP_INGRESS_TLS_SECRET_NAME is the ingress route tls certificate name. 
+- OCP_INGRESS_TLS_SECRET_NAME is the ingress route tls certificate name. For Azure, you can find it from the OpenShift customer. For AWS, the default value is "letsencrypt-certs".
 - DB2_INSTANCE_NAME is the db2 database instance name, e.g. db2inst
 - MAS_APP_ID is manage if MAS Manage is to be installed
 
-### Locate OpenShift Ingress Route Secret Name
+### Locate OpenShift Ingress Route Secret Name (Azure only)
 
 The OCP_INGRESS_TLS_SECRET_NAME environment variable is optional in most cases, but it must be specified for the OpenShift cluster on Azure, mainly because it is a randomly assigned name. 
 
@@ -54,7 +54,7 @@ To find it, log in to the OpenShift cluster. Search "ingress" under Workloads | 
 
 ![OCP Ingress TLS Secret Name](media/ocp-ingress-tls-secret-name.png)
 
-### Install ODF Storage Classes
+### Install ODF Storage Classes (Azure only)
 
 Maximo Application Suite and its dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:
   - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.
@@ -91,6 +91,145 @@ docker run -ti --rm --pull always -v ~/masconfig:/mascli/masconfig quay.io/ibmma
 - pull always: pull down image before running​
 - v: bind mount a volume. Local machine folder “~/masconfig”; container folder: “/mascli/masconfig”​
 - quay.io/ibmmas/cli: downloaded the mas cli image. Run "docker images" to see images available.
+
+### Install Maximo Using MAS CLI (AWS only)
+
+For Maximo deployment on AWS, you can run the cli command below. 
+
+```
+mas instal
+```
+It will first install the OpenShift pipelines operator, create the pipelines for Maximo deployment and complete required tasks in the pipelines. You are promoted to input the required values. 
+
+Log in to the OpenShift cluster, and find the login credentials from the OpenShift console. Copy the server URL and token.
+
+At step 3:
+```
+3. Configure Installation
+MAS Instance ID > aws1
+MAS Workspace ID > masdev1
+MAS Workspace Display Name > masdev1
+Use online catalog? [y/N] y
+MAS Version:
+  1. 8.9
+  2. 8.8
+Select Subscription Channel > 1
+```
+
+At step 4:
+```
+4. Configure Operation Mode
+Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:
+ - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations.
+ - These specifications are also visible in the metrics that are shared with IBM® and on the product UI.
+
+Use non-production mode? [y/N] y
+```
+
+At step 5:
+```
+5. Configure Domain & Certificate Management
+Configure Custom Domain [y/N] n
+```
+
+At step 6:
+```
+6. Application Selection
+Install IoT [y/N] n
+Install Manage [y/N] y
++ Create demo data [Y/n] y
+Install Optimizer [y/N] n
+Install Visual Inspection [y/N] n
+Install Predict [y/N] n
+Install Health & Predict - Utilities [y/N] n
+Install Assist [y/N] n
+```
+At step 7:
+```
+7. Configure Db2
+The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, Manage, Monitor, & Predict) or you may choose to configure MAS to use an existing database.
+
+Install Db2 using the IBM Db2 Universal Operator? [Y/n] y
+ 
+6.1 Db2 for IoT
+Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source.
+
+IoT Db2 instance will not be created because the application is not being installed
+
+6.2 Db2 for Manage
+Maximo Manage can be configured to share the system Db2 instance or use it's own dedicated database:
+ - Use of a shared instance has a significant footprint reduction but is only recommended for development/test/demo installs
+ - In most production systems you will want to use a dedicated database
+
+Dedicated Manage Db2 instance will be created because IoT is not being installed
+
+6.3 Database CPU & Memory
+Note that the same settings are applied to both the IoT and Manage Db2 instances, it will be possible to set these independently in a future update.
+
+    CPU Request:    4000m
+    CPU Limit:      6000m
+    Memory Request: 8Gi
+    Memory Limit:   12Gi
+
+Customize CPU and memory request/limit? [y/N] n
+ 
+6.4 Database Storage Capacity
+Note that the same settings are applied to both the IoT and Manage Db2 instances, it will be possible to set these independently in a future update.
+
+     - Meta:             20Gi
+     - Data:             100Gi
+     - Backup:           100Gi
+     - Temp:             100Gi
+     - Transaction Logs: 100Gi
+
+Customize storage capacity? [y/N] n
+```
+
+At step 8:
+```
+8. Additional Configuration
+Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step.
+The primary purpose of this is to apply configuration for Maximo Application Suite itself, but you can use this to deploy ANY additional resource into your cluster.
+
+Use additional configurations? [y/N] n
+```
+
+At Step 9:
+```
+9. Configure Storage Class Usage
+Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:
+  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.
+  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.
+
+Storage provider auto-detected: OpenShift Container Storage
+  - Storage class (ReadWriteOnce): ocs-storagecluster-ceph-rbd
+  - Storage class (ReadWriteMany): ocs-storagecluster-cephfs
+ 
+Choose your own storage classes anyway? [y/N] n
+```
+
+At Steps 10-12:
+```
+10. Configure IBM Container Registry
+Re-use saved IBM Entitlement Key? [Y/n] y
+ 
+11. Configure Product License
+License ID > 756A06D0C216
+License File > /mascli/masconfig/license.dat
+ 
+12. Configure UDS
+UDS Contact Email > xxx.xue@xxx.com
+UDS Contact First Name > xxx
+UDS Contact Last Name > xxx
+```
+
+At step 13:
+```
+13. Prepare Installation
+If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below
+
+Wait for PVCs to bind? [Y/n] y
+```
 
 ### Run Ansible Playbook to Install MAS Core
 
@@ -143,7 +282,7 @@ On the MacBook, open the Keychain Access setting. Click the import items from th
 
 With that, you can open the Maximo administration application in the browser and log in without any certificate error prompt.
 
-### Update User Data Service (UDS)
+### Update User Data Service (Azure Only)
 
 For Maximo deployment on Azure, you may notice an error from the command line that looks like the following. This error must be addressed before we activate the Manage application.
 
