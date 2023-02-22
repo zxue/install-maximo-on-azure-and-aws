@@ -14,7 +14,7 @@ You can install Maximo using the BYOL option, or purchase Maximo from Azure Mark
 
 This document covers the third option, installing MAS on an existing OpenShift cluster. Note that the code has been tested on a docker container on MacBook using a 5 worker-node OpenShift cluster hosted through IBM TechZone. To deploy MAS on a new cluster, you will need to obtain a domain name, e.g. xyz.com, and a subdomain name, e.g. azureocp.xyz.com, for the OpenShift cluster.
 
-## Install MAS Core
+## Define Environment Variables
 
 First, define the environment variables. 
 
@@ -46,7 +46,7 @@ export MAS_APP_ID=manage
 - DB2_INSTANCE_NAME is the db2 database instance name, e.g. db2inst
 - MAS_APP_ID is manage if MAS Manage is to be installed
 
-### Locate OpenShift Ingress Route Secret Name (Azure only)
+## Locate OpenShift Ingress Route Secret Name (Azure only)
 
 The OCP_INGRESS_TLS_SECRET_NAME environment variable is optional in most cases, but it must be specified for the OpenShift cluster on Azure, mainly because it is a randomly assigned name. 
 
@@ -54,7 +54,7 @@ To find it, log in to the OpenShift cluster. Search "ingress" under Workloads | 
 
 ![OCP Ingress TLS Secret Name](media/ocp-ingress-tls-secret-name.png)
 
-### Install ODF Storage Classes (Azure only)
+## Install ODF Storage Classes (Azure only)
 
 Maximo Application Suite and its dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:
   - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.
@@ -78,7 +78,7 @@ ocs-storagecluster-ceph-rbd" storage class.
 
 ![OpenShift Storage System](media/ocp-storage-classes.png)
 
-### Start the Docker Container
+## Start the Docker Container
 
 Install docker on your computer, and run the docker command to launch the MAS cli instance. Alternatively, you can run Ansible playbooks locally, but the tradeoff is that you will need to install all dependencies, e.g python3. 
 
@@ -92,9 +92,9 @@ docker run -ti --rm --pull always -v ~/masconfig:/mascli/masconfig quay.io/ibmma
 - v: bind mount a volume. Local machine folder “~/masconfig”; container folder: “/mascli/masconfig”​
 - quay.io/ibmmas/cli: downloaded the mas cli image. Run "docker images" to see images available.
 
-### Install Maximo Using MAS CLI (AWS only)
+## Install Maximo Using MAS CLI (AWS only)
 
-For Maximo deployment on AWS, you can run the cli command below. 
+For Maximo deployment on AWS, you can run the cli command below. One benefit of using the CLI command line is that the entire installation process is fully automated once you provide the required values upfront. The tradeoff is that it does not provide the flexibilities that Ansible playbooks do. It's worth noting that the MAS CLI command is using the same Ansible playbooks behind the scenes.
 
 ```
 mas instal
@@ -231,7 +231,78 @@ If you are using using storage classes that utilize 'WaitForFirstConsumer' bindi
 Wait for PVCs to bind? [Y/n] y
 ```
 
-### Run Ansible Playbook to Install MAS Core
+At step 14:
+```
+14. Review Settings
+
+    IBM Maximo Application Suite
+    Instance ID ............... aws1
+    Workspace ID .............. masdev1
+    Workspace Name ............ masdev1
+    Operation Mode ............ Non-production
+    Catalog Source ............ ibm-operator-catalog
+    Subscription Channel ...... 8.9.x
+    IBM Entitled Registry ..... cp.icr.io/cp
+    IBM Open Registry ......... icr.io/cpopen
+    Entitlement Username ...... cp
+    Entitlement Key ........... eyJ0eXAi<snip>
+ 
+    IBM Maximo Application Suite Applications
+    IoT ...................... Skip Installation
+     - Monitor ............... Skip Installation
+    Manage ................... 8.5.x (workspace-application JDBC Config)
+     - Predict ............... Skip Installation
+    H & P Utilities .......... Skip Installation
+    Assist ................... Skip Installation
+    MVI ...................... Skip Installation
+ 
+    IBM Suite License Service
+    Catalog Source ............ ibm-operator-catalog
+    License ID ................ 756A06D0C216
+    License File .............. /workspace/entitlement/license.dat
+    IBM Entitled Registry ..... cp.icr.io/cp
+    IBM Open Registry ......... icr.io/cpopen
+    Entitlement Username ...... cp
+    Entitlement Key ........... xxx<snip>
+ 
+    IBM User Data Services
+    Contact Email ............. xxx.xue@xxx.com
+    First Name ................ xxx
+    Last Name ................. xxx
+ 
+    IBM Db2
+    System Instance ........... none
+    Dedicated Manage Instance . install
+    CPU Request ............... 4000m
+    CPU Limit ................. 6000m
+    Memory Request ............ 8Gi
+    Memory Limit .............. 12Gi
+    Meta Storage .............. 20Gi
+    Data Storage .............. 100Gi
+    Backup Storage ............ 100Gi
+    Temp Storage .............. 100Gi
+    Transaction Logs Storage .. 100Gi
+ 
+    Storage Class Configuration
+    Storage Class Provider ... ocs
+ 
+Proceed with these settings [y/N] y
+```
+
+At step 15:
+```
+15. Launch Installation
+Installation started successfully
+
+View progress:
+  https://console-openshift-console.apps.xxx.h18p.p1.openshiftapps.com/pipelines/ns/mas-aws1-pipelines
+```
+
+You can take the installation status from the OpenShift console. 
+
+![OCP Pipelines Status](media/mas-install-pipelines.png)
+
+## Run Ansible Playbook to Install MAS Core
 
 Log in to OpenShift and run the playbook to install MAS Core. This step may take one hour or longer.
 
