@@ -111,7 +111,13 @@ ansible-playbook ansible-devops/playbooks/oneclick_core.yml --connection=local -
 
 ### Look Up MAS Admin Superuser Credentials
 
-placeholder
+Navigate to the Secrets screen under Workloads from the OpenShift console. Search "superuser", and open the one in the namespace for the MAS installation, e.g. "mas-poc10-core".
+
+![Look Up Superuser](media/lookup-superuser.png)
+
+Copy the values for password and username. Note that the password appears first and username second. You will use them to log in to the Maximo administration app. Alternatively, use the `oc` command to look up the superuser credentials.
+
+![Superuser Credentials](media/superuser-credentials.png)
 
 ### Download and Configure MAS Certificate
 
