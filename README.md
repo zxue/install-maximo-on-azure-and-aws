@@ -99,7 +99,7 @@ For Maximo deployment on AWS, you can run the cli command below. One benefit of 
 ```
 mas install
 ```
-It will first install the OpenShift pipelines operator, create the pipelines for Maximo deployment and complete required tasks in the pipelines. You are promoted to input the required values. 
+It will first install the OpenShift pipelines operator, create the pipelines for Maximo deployment and complete required tasks in the pipelines. You are prompted to input the required values. 
 
 Log in to the OpenShift cluster, and find the login credentials from the OpenShift console. Copy the server URL and token.
 
@@ -331,7 +331,7 @@ Copy the values for password and username. Note that the password appears first 
 
 ### Download and Configure MAS Certificate
 
-When navigating to the Maximo administration console in the browser, you are promoted with the "NET::ERR_CERT_AUTHORITY_INVALID". That is because the self-signed certificate is not trusted on your computer. 
+When navigating to the Maximo administration console in the browser, you are prompted with the "NET::ERR_CERT_AUTHORITY_INVALID". That is because the self-signed certificate is not trusted on your computer. 
 
 ![Maximo Admin URL Error](media/maximo-admin-url-error.png)
 
@@ -347,7 +347,7 @@ Scroll down the screen to find the CA certificate. Copy the certificate and save
 
 ![Maximo Admin Route](media/maximo-admin-route-certificate.png)
 
-On the MacBook, open the Keychain Access setting. Click the import items from the File menu. Locate the certificate file and import it. Select the imported item from the list, which is likely named something like "public.poc10.mas.imb.com". Double click on it and change the value of "when using this certificate" under Trust to "Always trust". Save the setting by entering your MacBook login password if promoted. You will notice that the icon next to the name from a red "x" to to a blue "+".
+On the MacBook, open the Keychain Access setting. Click the import items from the File menu. Locate the certificate file and import it. Select the imported item from the list, which is likely named something like "public.poc10.mas.imb.com". Double click on it and change the value of "when using this certificate" under Trust to "Always trust". Save the setting by entering your MacBook login password if prompted. You will notice that the icon next to the name from a red "x" to to a blue "+".
 
 ![Maximo Admin Route](media/maximo-admin-route-certificate-trust.png)
 
