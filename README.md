@@ -97,7 +97,7 @@ docker run -ti --rm --pull always -v ~/masconfig:/mascli/masconfig quay.io/ibmma
 For Maximo deployment on AWS, you can run the cli command below. One benefit of using the CLI command line is that the entire installation process is fully automated once you provide the required values upfront. The tradeoff is that it does not provide the flexibilities that Ansible playbooks do. It's worth noting that the MAS CLI command is using the same Ansible playbooks behind the scenes.
 
 ```
-mas instal
+mas install
 ```
 It will first install the OpenShift pipelines operator, create the pipelines for Maximo deployment and complete required tasks in the pipelines. You are promoted to input the required values. 
 
