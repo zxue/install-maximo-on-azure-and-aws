@@ -179,12 +179,36 @@ Note that if you want to use an existing database, you can skip this step and go
 
 ## Review and Connect to the Database
 
-placeholder
+Navigate to the Configurations screen from the Maximo administration console. Open the database connection view and the edit screen. 
+
+![Database Connection](media/database-connection.png)
+
+For IBM DB2 database, the connection string looks like the following. The default user name is "db2inst1". 
+
+```
+jdbc:db2://c-db2inst-db2u-engn-svc.db2u.svc:50001/BLUDB:sslConnection=true;sslVersion=TLSv1.2;
+```
+The password can be found in the Secrets under Workloads from the OpenShift Console. Search "password" in the namespace of "db2u". Open the "c-db2inst-instancepassword" screen and copy the password. If "SSL Enabled" is checked, make sure that the certificate has added. If not, you can find it from the "db2u-ca" secret in the namespace of "db2u".
+
+![DB2 password](media/db2-password.png)
+
+For Oracle database or Microsoft SQL Server database, obtain the connection string and user credentials and update them accordingly.
 
 ## Install Demo Data for MAS Manage
 
-placeholder
+If you use the "mas install" pipelines, you can choose the include demo data for Maximo Manage.
 
+![Maximo Manage Demo Data with Mas Install](media/maximo-demo-data-masinstall.png)
+
+If you use the the Ansible palybooks, update the ManageWorspace custom resource before installing the database.
+
+Navigate to CustomResourceDefinitions under Administration from the OpenShift console. Search and find the custom resource, ManageWorkspace. 
+
+![OpenShift ManageWorkspace](media/ocp-manageworkspace.png)
+
+Open the YAML screen and update the "demodata" value at line 68 from "false" to "true".
+
+![OpenShift CR YAML Demo Data](media/ocp-cr-yaml-demodata.png)
 
 ## Estimate Maximo License Requirements for Dev or Test Environment
 
@@ -205,3 +229,6 @@ Premium administrator users consume 15 AppPoints.
 - Application administrators administrate one or more applications, adds and assigns users to these applications, and uses the application-specific user interfaces to manage further user privileges.
 - Suite administrator manages overarching system configuration settings from the suite administration pane.
  
+ ## Contributors
+
+ Many thanks to my colleagues Jenny Wang, Sina Nikmaram, Mir Farhan Ali and Darnele Pierre-Louis for their assistance in the project. I am deeply indebted to them for their kindness and expert knowledge.
