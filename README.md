@@ -445,15 +445,17 @@ Premium administrator users consume 15 AppPoints.
 - Application administrators administrate one or more applications, adds and assigns users to these applications, and uses the application-specific user interfaces to manage further user privileges.
 - Suite administrator manages overarching system configuration settings from the suite administration pane.
 
-## Estimate OpenShift Costs
+## Capacity Planning and Cost Estimates
 
-There are several considerations for cost estimates.
+For requirements and capacity planning, refer to the IBM documentation and [download the calculator](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-requirements-capacity-planning).
+
+For cost estimates on OpenShift clusters, excluding licensing fees, consider the following factors.
 
 - Cluster size: small, medium and large
 - Storage types and sizes
 - Networking e.g. ExpressRoute
 - Database
- 
+  
  You can use the Azure pricing calculator to estimate costs for an OpenShift cluster on Azure. 
 
  Below is an example for a medium sized OpenShift cluster on Azure.
