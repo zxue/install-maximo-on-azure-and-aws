@@ -406,6 +406,10 @@ The password can be found in the Secrets under Workloads from the OpenShift Cons
 
 For Oracle database or Microsoft SQL Server database, obtain the connection string and user credentials and update them accordingly.
 
+## Activate MAS Manage Manually
+
+When using an external database, you can activate MAS Manage manually through the administration console. For more details, refer to the documentation on [Activating Maximo Manage] https://www.ibm.com/docs/en/maximo-manage/continuous-delivery?topic=manage-activating-maximo
+
 ## Install Demo Data for MAS Manage
 
 If you use the "mas install" pipelines, you can choose the include demo data for Maximo Manage.
@@ -440,7 +444,30 @@ Premium concurrent users consume 15 AppPoints, with the same login/logout logic.
 Premium administrator users consume 15 AppPoints.
 - Application administrators administrate one or more applications, adds and assigns users to these applications, and uses the application-specific user interfaces to manage further user privileges.
 - Suite administrator manages overarching system configuration settings from the suite administration pane.
+
+## Estimate OpenShift Costs
+
+There are several considerations for cost estimates.
+
+- Cluster size: small, medium and large
+- Storage types and sizes
+- Networking e.g. ExpressRoute
+- Database
  
+ You can use the Azure pricing calculator to estimate costs for an OpenShift cluster on Azure. 
+
+ Below is an example for a medium sized OpenShift cluster on Azure.
+
+ | Service category | Service type       | Custom name | Region  | Description                                                                                                                                                                                                                                                                                                     | Estimated monthly cost | Estimated upfront cost |
+| ---------------- | ------------------ | ----------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ---------------------- |
+| Compute          | Virtual Machines   |             | West US | 3 D8s v4 (8 vCPUs, 32 GB RAM) (1 year savings plan), Linux,  (Pay as you go); 0 managed disks – S4; Inter Region transfer type, 5 GB outbound data transfer from West US to East Asia                                                                                                                           | $789.21                | $0.00                  |
+| Compute          | Virtual Machines   |             | West US | 5 D16s v4 (16 vCPUs, 64 GB RAM) (1 year savings plan), Linux,  (Pay as you go); 0 managed disks – S4; Inter Region transfer type, 5 GB outbound data transfer from West US to East Asia                                                                                                                         | $2,630.70              | $0.00                  |
+| Storage          | Storage Accounts   |             | West US | File Storage, Premium Performance Tier, LRS Redundancy, 10 TiB of Data at-rest, (One Year Reserved), 1 TiB Snapshots, 0 Additional Sync Server(s)                                                                                                                                                               | $153.60                | $17,734.00             |
+| Storage          | Storage Accounts   |             | West US | Block Blob Storage, General Purpose V2, Flat Namespace, LRS Redundancy, Hot Access Tier, 10 TB Capacity - Pay as you go, 10 x 10,000 Write operations, 10 x 10,000 List and Create Container Operations, 10 x 10,000 Read operations, 1 x 10,000 Other operations. 1,000 GB Data Retrieval, 1,000 GB Data Write | $214.14                | $0.00                  |
+| Networking       | Azure ExpressRoute |             |         | ExpressRoute, Zone 1, Premium, Metered; 1 Gbps Circuit X 1 circuit, 0 GB in Additional Outbound Data Transfer; Global Reach Add On: Disabled                                                                                                                                                                    | $1,186.00              | $0.00                  |
+| Compute          | Virtual Machines   |             | West US | 1 D2s v4 (2 vCPUs, 8 GB RAM) (1 year savings plan), Linux,  (Pay as you go); 0 managed disks – S4; Inter Region transfer type, 5 GB outbound data transfer from West US to East Asia                                                                                                                            | $65.77                 | $0.00                  |
+| Total            |                    |             |         |                                                                                                                                                                                                                                                                                                                 | 5039.4174              | $17,734.00             |
+
  ## Contributors
 
  Many thanks to my colleagues Jenny Wang, Sina Nikmaram, Mir Farhan Ali and Darnele Pierre-Louis for their assistance in the project. I am deeply indebted to them for their kindness and expert knowledge.
