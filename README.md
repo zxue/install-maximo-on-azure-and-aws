@@ -394,6 +394,16 @@ Navigate to Secrets under Workloads from the OpenShift console. Search "event-ap
 
 ![OCP Event API Secrets](media/ocp-event-api-secrets.png)
 
+Alternatively, you can get apikey and certificates using the `oc` command.
+
+```
+oc get secrets -n ibm-common-services | grep event-api
+oc get secret event-api-secret -n ibm-common-services -o yaml
+oc get secret event-api-certs -n ibm-common-services -o yaml
+echo "<apikey string>" | base64 -d
+echo "<tls.cert string>" | base64 -d
+```
+
 Go back to the User Data Services (UDS) in the Maximo administration console. Open the edit screen.
 
 - Replace the URL from the existing value, e.g. "https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io" to "".
