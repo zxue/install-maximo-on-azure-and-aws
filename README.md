@@ -52,9 +52,15 @@ export MAS_APP_ID=manage
 
 The OCP_INGRESS_TLS_SECRET_NAME environment variable is optional in most cases, but it must be specified for the OpenShift cluster on Azure, mainly because it is a randomly assigned name. 
 
-To find it, log in to the OpenShift cluster. Search "ingress" under Workloads | Secrets. Sort the list by Type. Note the name in the namespace of "openshift-ingress" and type of "kubernetes.io/tls", e.g. a85b5fa3-a6b3-4432-8b6d-b373773ce84e-ingress. Alternatively, you can locate the name using the `oc` command.
+To find it, log in to the OpenShift cluster. Search "ingress" under Workloads | Secrets. Sort the list by Type. Note the name in the namespace of "openshift-ingress" and type of "kubernetes.io/tls", e.g. a85b5fa3-a6b3-4432-8b6d-b373773ce84e-ingress. 
 
 ![OCP Ingress TLS Secret Name](media/ocp-ingress-tls-secret-name.png)
+
+Alternatively, you can locate the name using the `oc` command.
+
+```
+oc get secrets -n openshift-ingress | grep ingress
+```
 
 ## Install ODF Storage Classes (Azure only)
 
@@ -97,6 +103,8 @@ docker run -ti --rm --pull always -v ~/masconfig:/mascli/masconfig quay.io/ibmma
 ## Install Maximo Using MAS CLI (AWS only)
 
 For Maximo deployment on AWS, you can run the cli command below. One benefit of using the CLI command line is that the entire installation process is fully automated once you provide the required values upfront. The tradeoff is that it does not provide the flexibilities that Ansible playbooks do. It's worth noting that the MAS CLI command is using the same Ansible playbooks behind the scenes.
+
+Note that the "mas install" command does not work on Azure due to missing cluster ingress cert secret name.
 
 ```
 mas install
@@ -306,7 +314,9 @@ You can check the installation status from the OpenShift console.
 
 ## Run Ansible Playbook to Install MAS Core
 
-Log in to OpenShift and run the playbook to install MAS Core. This step may take one hour or longer.
+Log in to OpenShift and run the playbook to install MAS Core. This step may take one hour or longer. 
+
+Make sure that you remove any yaml files from previous installations.
 
 ```
 oc login --token=xxx --server=https://api.xxx.westus.aroapp.io:6443
@@ -327,9 +337,19 @@ Navigate to the Secrets screen under Workloads from the OpenShift console. Searc
 
 ![Look Up Superuser](media/lookup-superuser.png)
 
-Copy the values for password and username. Note that the password appears first and username second. You will use them to log in to the Maximo administration app. Alternatively, use the `oc` command to look up the superuser credentials.
+Copy the values for password and username. Note that the password appears first and username second. You will use them to log in to the Maximo administration app. 
 
 ![Superuser Credentials](media/superuser-credentials.png)
+
+Alternatively, use the `oc` command to look up the superuser credentials.
+
+```
+oc get projects | grep core
+oc get secrets -n mas-xxx-core | grep superuser
+oc get secret poc20-credentials-superuser -n mas-poc20-core  -o yaml
+echo "<password encoded string>"| base64 -d
+echo "<username encoded string>"| base64 -d
+```
 
 ### Download and Configure MAS Certificate
 
