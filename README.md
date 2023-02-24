@@ -331,7 +331,9 @@ Alternatively, you can run the playbook locally on a remote host, as explained i
 ansible-playbook ansible-devops/playbooks/oneclick_core.yml --connection=local -vvv
 ```
 
-### Look Up MAS Admin Superuser Credentials
+### Look Up MAS Admin URL and Superuser Credentials
+
+Navigate to the Routes screen under Networking from the OpenShift console. Copy the admin URL in the namespace for the MAS installation.
 
 Navigate to the Secrets screen under Workloads from the OpenShift console. Search "superuser", and open the one in the namespace for the MAS installation, e.g. "mas-poc10-core".
 
@@ -345,6 +347,7 @@ Alternatively, use the `oc` command to look up the superuser credentials.
 
 ```
 oc get projects | grep core
+oc get routes -n mas-xxx-core | grep admin
 oc get secrets -n mas-xxx-core | grep superuser
 oc get secret poc20-credentials-superuser -n mas-poc20-core  -o yaml
 echo "<password encoded string>"| base64 -d
