@@ -349,7 +349,7 @@ Alternatively, use the `oc` command to look up the superuser credentials.
 oc get projects | grep core
 oc get routes -n mas-xxx-core | grep admin
 oc get secrets -n mas-xxx-core | grep superuser
-oc get secret poc20-credentials-superuser -n mas-poc20-core  -o yaml
+oc get secret xxx-credentials-superuser -n mas-xxx-core  -o yaml
 echo "<password encoded string>"| base64 -d
 echo "<username encoded string>"| base64 -d
 ```
