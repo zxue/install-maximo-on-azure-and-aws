@@ -383,7 +383,11 @@ With that, you can open the Maximo administration application in the browser and
 For Maximo deployment on Azure, you may notice an error from the command line that looks like the following. This error must be addressed before we activate the Manage application.
 
 ```
-BAS configuration was unable to be verified: Connecting to BAS (verify=/tmp/bas.pem) at https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io failed: SSLError: HTTPSConnectionPool(host='uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io', port=443): Max retries exceeded with url: /v1/status (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get issuer certificate (_ssl.c:1131)')))
+BAS configuration was unable to be verified: 
+Connecting to BAS (verify=/tmp/bas.pem) at https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io failed: 
+SSLError: HTTPSConnectionPool(host='uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io', port=443): 
+Max retries exceeded with url: /v1/status (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: 
+unable to get issuer certificate (_ssl.c:1131)')))
 ```
 
 Log in to the Maximo administration console. Navigate to the admin with "/initialsetup", or click on the Configurations on the left side. We will need to update the URL, the AIP key, and the certificates. We will find these values from the OpenShift cluster.
