@@ -102,7 +102,9 @@ docker run -ti --rm --pull always -v ~/masconfig:/mascli/masconfig quay.io/ibmma
 
 ## Install Maximo Using MAS CLI (AWS only)
 
-For Maximo deployment on AWS, you can run the cli command below. One benefit of using the CLI command line is that the entire installation process is fully automated once you provide the required values upfront. The tradeoff is that it does not provide the flexibilities that Ansible playbooks do. It's worth noting that the MAS CLI command is using the same Ansible playbooks behind the scenes.
+For Maximo deployment on AWS, you can run the cli command below. As an option, you can include demo data. Both MAS Manage and Health are installed.
+
+One benefit of using the CLI command line is that the entire installation process is fully automated once you provide the required values upfront. The tradeoff is that it does not provide the flexibilities that Ansible playbooks do. It's worth noting that the MAS CLI command is using the same Ansible playbooks behind the scenes.
 
 Note that the "mas install" command does not work on Azure due to missing cluster ingress cert secret name.
 
@@ -447,21 +449,52 @@ For Oracle database or Microsoft SQL Server database, obtain the connection stri
 
 When using an external database, you can activate MAS Manage manually through the administration console. For more details, refer to the documentation on [Activating Maximo Manage] https://www.ibm.com/docs/en/maximo-manage/continuous-delivery?topic=manage-activating-maximo
 
+
+## Log In to MAS Manage 
+
+As aforementioned, you can find the admin or home URL addresses from the Routes and log in with the superuser credentials. Once logged in, you can create new users, or modify existing users. For example, you can change the password for the built-in user account, "maxadmin".
+
+With user accounts like "maxadmin", not the superuser account, you can choose the Manage application or other applications by clicking the 9-dot AppSwitch icon from the upper right corner in the browser. 
+
+![Maximo Log In](media/maximo-login-manage.png)
+
 ## Install Demo Data for MAS Manage
 
 If you use the "mas install" pipelines, you can choose the include demo data for Maximo Manage.
 
 ![Maximo Manage Demo Data with Mas Install](media/maximo-demo-data-masinstall.png)
 
-If you use the the Ansible palybooks, update the ManageWorspace custom resource before installing the database.
+If you use the the Ansible playbooks, you can take the following steps to apply demo data. This option has not been fully tested.
 
-Navigate to CustomResourceDefinitions under Administration from the OpenShift console. Search and find the custom resource, ManageWorkspace. 
+### Update the ManageWorspace custom resource 
+
+Navigate to CustomResourceDefinitions under Administration from the OpenShift console. Search and find the custom resource, ManageWorkspace. The CR resource is created after MAS Manage activation.
 
 ![OpenShift ManageWorkspace](media/ocp-manageworkspace.png)
 
 Open the YAML screen and update the "demodata" value at line 68 from "false" to "true".
 
 ![OpenShift CR YAML Demo Data](media/ocp-cr-yaml-demodata.png)
+
+### update the database
+
+For DB2, the default user name is db2inst1. The database password is created and stored in the pod named something like  "c-db2inst-instancepassword". Make a note of it for use later.
+
+To the the pod named something like "c-db2inst-db2u-0" in the namespace of "db2u". Navigate to the Terminal tab of the pod. Connect to DB2 with the default username and password. Delete the maxvars table in the Maximo schema, which contains 1271 or so tables. The maxvars table will be re-created and demo data added once Maximo Manage is reconciled.
+
+```
+su db2inst1
+db2 connect to BLUDB user db2inst1 using <password>
+db2 list tables for schema MAXIMO
+db2look -d BLUDB -e -t MAXIMO.MAXVARS
+db2
+  select varname from maximo.maxvars
+  drop table maximo.maxvars;
+  quit
+exit
+```
+
+![OCP DB2 Connection](media/ocp-db2-connection.png)
 
 ## Estimate Maximo License Requirements for Dev or Test Environment
 
