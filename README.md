@@ -1,25 +1,28 @@
 # Install Maximo On Microsoft Azure and Amazon AWS
 
-The Maximo Application Suite allows users to sign on to a single, integrated platform to access key monitoring, maintenance, and
-reliability applications across the business. Since the 8.x releases, MAS has been expanded to include Manage, the enterprise assets management application that exists in version 7.6.x and previous releases, and several new applications, Health, Monitor, Predict, Visual Inspection, IoT and the mobile app. While you can deploy MAS on-prem or in a public cloud, it requires Red Hat's OpenShift container platform as the underlying infrastructure. Below is a high-level Maximo architecture and core components.
+The [Maximo Application Suite](https://www.ibm.com/products/maximo) allows users to sign on to a single, integrated platform to access key monitoring, maintenance, and reliability applications across the business. 
+
+Since the 8.x releases, MAS has been expanded to include [Manage](https://www.ibm.com/products/maximo/asset-management), the enterprise assets management application that exists in version 7.6.x and previous releases, and several new applications, Health, Monitor, [Predict](https://www.ibm.com/products/maximo/predictive-maintenance), [Visual Inspection](https://www.ibm.com/products/maximo/visual-inspection), IoT and the [mobile app](https://www.ibm.com/products/maximo/mobile-eam). While you can deploy MAS on-prem or in a public cloud, it requires [Red Hat's OpenShift](https://www.ibm.com/cloud/openshift) container platform as the underlying infrastructure. 
+
+Pictured below is a high-level Maximo architecture and core components.
 
 ![MAS Architecture](media/mas-architecture.png)
 
 Before installing Maximo Application Suite (MAS 8.x or higher) on Microsoft Azure, check the [prerequisites](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=azure-overview), including Azure subscriptions, IBM Maximo license and entitlement key, Red Hat account and pull secret, domain and subdomain names for your OpenShift cluster.
 
-You can install Maximo using the BYOL option, or purchase Maximo from Azure Marketplace or AWS. You can install Maximo with a few options. To deploy Maximo on AWS, visit [IBM Maximo on AWS](https://aws.amazon.com/solutions/partners/ibm-maximo/). To deploy Maximo on Azure, visit [Deploy a Red Hat Azure OpenShift](https://learn.microsoft.com/en-us/azure/openshift/quickstart-portal).
+You can install Maximo using the Bring Your Onn License (BYOL) option, or purchase Maximo from Azure Marketplace or AWS. You can install Maximo with a few options. To deploy Maximo on AWS, visit [IBM Maximo on AWS](https://aws.amazon.com/solutions/partners/ibm-maximo/). To deploy Maximo on Azure, visit [Deploy a Red Hat Azure OpenShift](https://learn.microsoft.com/en-us/azure/openshift/quickstart-portal).
 
 1. New Red Hat® OpenShift® cluster by using the Installer Provisioned Infrastructure (IPI)
 2. New Red Hat® OpenShift® cluster by using the User Provisioned Infrastructure (UPI)
 3. Existing Red Hat® OpenShift® cluster
 
-This document covers the third option, installing MAS on an existing OpenShift cluster. The primary purpose of this document is to share lessons learned. Readers should reference official documentation from IBM, Microsoft and Amazon for the latest updates.
+**This document covers the third option, installing MAS on an existing OpenShift cluster.** The primary purpose of this document is to share lessons learned. Readers should reference official documentation from IBM, Microsoft and Amazon for the latest updates.
 
 Note that the code has been tested on a docker container on MacBook using a 5 worker-node OpenShift cluster hosted through IBM TechZone. To deploy MAS on a new cluster, you will need to obtain a domain name, e.g. xyz.com, and a subdomain name, e.g. azureocp.xyz.com, for the OpenShift cluster.
 
 ## Define Environment Variables
 
-First, define the environment variables. 
+First, define the environment variables:
 
 ```
 export MAS_INSTANCE_ID=poc10
@@ -63,13 +66,13 @@ Alternatively, you can locate the name using the `oc` command.
 oc get secrets -n openshift-ingress | grep ingress
 ```
 
-## Install ODF Storage Classes (Azure only)
+## Install OpenShift® Data Foundation (ODF) Storage Classes (Azure only)
 
 Maximo Application Suite and its dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:
   - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.
   - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.
 
-By default, an OpenShift cluster on Azure comes with two storage classes. While it is possible to use them to run the Ansible playbooks, it is much easier to work with OpenShift® Data Foundation (ODF), previously known as OpenShift Container Storage (OCS). 
+By default, an OpenShift cluster on Azure comes with two storage classes. While it is possible to use them to run the Ansible playbooks, it is much easier to work with ODF, previously known as OpenShift Container Storage (OCS). 
 
   - Storage class (ReadWriteOnce): managed-csi
   - Storage class (ReadWriteMany): managed-premium
