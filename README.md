@@ -7,7 +7,8 @@ reliability applications across the business. Since the 8.x releases, MAS has be
 
 Before installing Maximo Application Suite (MAS 8.x or higher) on Microsoft Azure, check the [prerequisites](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=azure-overview), including Azure subscriptions, IBM Maximo license and entitlement key, Red Hat account and pull secret, domain and subdomain names for your OpenShift cluster.
 
-You can install Maximo using the BYOL option, or purchase Maximo from Azure Marketplace and then install it on Azure. With the BYOL option, you can install Maximo on a new OpenShift cluster, on an existing cluster, or 
+You can install Maximo using the BYOL option, or purchase Maximo from Azure Marketplace or AWS. You can install Maximo with a few options. To deploy Maximo on AWS, visit [IBM Maximo on AWS](https://aws.amazon.com/solutions/partners/ibm-maximo/). To deploy Maximo on Azure, visit [Deploy a Red Hat Azure OpenShift](https://learn.microsoft.com/en-us/azure/openshift/quickstart-portal).
+
 1. New Red Hat® OpenShift® cluster by using the Installer Provisioned Infrastructure (IPI)
 2. New Red Hat® OpenShift® cluster by using the User Provisioned Infrastructure (UPI)
 3. Existing Red Hat® OpenShift® cluster
