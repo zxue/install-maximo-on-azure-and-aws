@@ -516,7 +516,7 @@ Premium administrator users consume 15 AppPoints.
 - Application administrators administrate one or more applications, adds and assigns users to these applications, and uses the application-specific user interfaces to manage further user privileges.
 - Suite administrator manages overarching system configuration settings from the suite administration pane.
 
-## Capacity Planning and Cost Estimates
+## Maximo Capacity Planning and Cost Estimates
 
 For requirements and capacity planning, refer to the IBM documentation and [download the calculator](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-requirements-capacity-planning).
 
@@ -526,10 +526,28 @@ For cost estimates on OpenShift clusters, excluding licensing fees, consider the
 - Storage types and sizes
 - Networking e.g. ExpressRoute
 - Database
-  
- You can use the Azure pricing calculator to estimate costs for an OpenShift cluster on Azure. 
 
- Below is an example for a medium sized OpenShift cluster on Azure.
+### Maximo Costs on AWS
+
+You can find [Maximo pricing on AWS](https://aws.amazon.com/solutions/partners/ibm-maximo).
+
+### Maximo Costs on Azure
+
+You can use the Azure pricing calculator to estimate costs for an OpenShift cluster on Azure. 
+
+For pricing of managed OpenShift clusters on Azure, check the [pricing](https://azure.microsoft.com/en-us/pricing/details/openshift/#pricing).
+
+Below is an example for a medium sized, managed OpenShift cluster on Azure.
+
+| Instance            | vCPU(s)     | RAM    | Linux VM Price         | OpenShift   | Cluster size | Pay As You Go Total Price | 1 Year Reserved | 3 Year Reserved | Total (1 yr reserved) | Total (3yr reserved) |
+| ------------------- | ----------- | ------ | ---------------------- | ----------- | ------------ | ------------------------- | --------------- | --------------- | --------------------- | -------------------- |
+| Total Price         | Total Price |        |                        |
+| D8s v3              | 8           | 32 GiB | Up to 100 worker nodes | $0.44/hour  | 3            |                           | $0.28           | $0.18           | $632.93               | $411.54              |
+| D16as v4            | 16          | 64 GiB | $0.868/hour            | $0.684/hour | 5            | $1.55                     | $0.98           | $0.65           | $3,720.20             | $2,462.78            |
+|                     |             |        |                        |             |              |                           |                 |                 |                       |                      |
+| Monthly Grand Total |             |        |                        |             |              |                           |                 |                 | $4,353.13             | $2,874.32            |
+
+Below is an example for a medium sized, unmanaged OpenShift cluster on Azure.
 
  | Service category | Service type       | Custom name | Region  | Description                                                                                                                                                                                                                                                                                                     | Estimated monthly cost | Estimated upfront cost |
 | ---------------- | ------------------ | ----------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ---------------------- |
