@@ -446,6 +446,8 @@ The password can be found in the Secrets under Workloads from the OpenShift Cons
 
 For Oracle database or Microsoft SQL Server database, obtain the connection string and user credentials and update them accordingly.
 
+It's worth noting that while Maximo Manage supports different database types, including DB2, DB2 Warehouse, Oracle database and SQL Server database, some Maximo applications supports DB2 only. Check out the [Prerequisite software](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=overview-prerequisite-software).
+
 ## Activate MAS Manage Manually
 
 When using an external database, you can activate MAS Manage manually through the administration console. For more details, refer to the documentation on [Activating Maximo Manage] https://www.ibm.com/docs/en/maximo-manage/continuous-delivery?topic=manage-activating-maximo
@@ -494,8 +496,6 @@ db2
   quit
 exit
 ```
-
-It's worth noting that while Maximo Manage supports different database types, including DB2, DB2 Warehouse, Oracle database and SQL Server database, some Maximo applications supports DB2 only. Check out the [Prerequisite software](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=overview-prerequisite-software).
 
 ![OCP DB2 Connection](media/ocp-db2-connection.png)
 
