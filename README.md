@@ -479,7 +479,7 @@ Open the YAML screen and update the "demodata" value at line 68 from "false" to 
 
 ![OpenShift CR YAML Demo Data](media/ocp-cr-yaml-demodata.png)
 
-### update the database
+### Update the database in the pod
 
 For DB2, the default user name is db2inst1. The database password is created and stored in the pod named something like  "c-db2inst-instancepassword". Make a note of it for use later.
 
