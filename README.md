@@ -495,6 +495,8 @@ db2
 exit
 ```
 
+It's worth noting that while Maximo Manage supports different database types, including DB2, DB2 Warehouse, Oracle database and SQL Server database, some Maximo applications supports DB2 only. Check out the [Prerequisite software](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=overview-prerequisite-software).
+
 ![OCP DB2 Connection](media/ocp-db2-connection.png)
 
 ## Estimate Maximo License Requirements for Dev or Test Environment
