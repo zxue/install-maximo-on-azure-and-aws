@@ -4,7 +4,7 @@ The [Maximo Application Suite](https://www.ibm.com/products/maximo) allows users
 
 Since the 8.x releases, MAS has been expanded to include [Manage](https://www.ibm.com/products/maximo/asset-management), the enterprise assets management application that exists in version 7.6.x and previous releases, and several new applications, Health, Monitor, [Predict](https://www.ibm.com/products/maximo/predictive-maintenance), [Visual Inspection](https://www.ibm.com/products/maximo/visual-inspection), IoT and the [mobile app](https://www.ibm.com/products/maximo/mobile-eam). While you can deploy MAS on-prem or in a public cloud, it requires [Red Hat's OpenShift](https://www.ibm.com/cloud/openshift) container platform as the underlying infrastructure. 
 
-Pictured below is a high-level Maximo architecture and core components.
+The diagram below is a high-level Maximo architecture and core components.
 
 ![MAS Architecture](media/mas-architecture.png)
 
@@ -464,6 +464,18 @@ With user accounts like "maxadmin", not the superuser account, you can choose th
 
 ![Maximo Log In](media/maximo-login-manage.png)
 
+## Custom Domain Name and DNS Server (Azure only)
+
+When creating a Red Hat OpenShift cluster, you can specify the [domain name](https://learn.microsoft.com/en-us/azure/openshift/quickstart-portal), e.g. example.com.
+
+You can change the DNS server for an existing cluster. Run the `oc` command to determine eligibility. For more details, check [Configure custom DNS for your Azure Red Hat OpenShift (ARO) cluster](https://learn.microsoft.com/en-us/azure/openshift/howto-custom-dns).
+
+```
+oc get machineconfig | grep dns
+99-master-aro-dns                                                                             2.2.0             3d17h
+99-worker-aro-dns                                                                             2.2.0             3d17h
+```
+
 ## Install Demo Data for MAS Manage
 
 If you use the "mas install" pipelines, you can choose the include demo data for Maximo Manage.
@@ -472,7 +484,7 @@ If you use the "mas install" pipelines, you can choose the include demo data for
 
 If you use the the Ansible playbooks, you can take the following steps to apply demo data. This option has not been fully tested.
 
-### Update the ManageWorspace custom resource 
+### Update the ManageWorkspace custom resource 
 
 Navigate to CustomResourceDefinitions under Administration from the OpenShift console. Search and find the custom resource, ManageWorkspace. The CR resource is created after MAS Manage activation.
 
