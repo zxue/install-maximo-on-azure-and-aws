@@ -453,7 +453,7 @@ It's worth noting that while Maximo Manage supports different database types, in
 
 ## Activate MAS Manage Manually
 
-When using an external database, you can activate MAS Manage manually through the administration console. For more details, refer to the documentation on [Activating Maximo Manage] https://www.ibm.com/docs/en/maximo-manage/continuous-delivery?topic=manage-activating-maximo
+When using an external database, you can activate MAS Manage manually through the administration console. For more details, refer to the documentation on [Activating Maximo Manage](https://www.ibm.com/docs/en/maximo-manage/continuous-delivery?topic=manage-activating-maximo) or [Deploying and activating Maximo Manage](https://www.ibm.com/docs/en/maximo-manage/8.0.0?topic=suite-deploying-activating-manage).
 
 
 ## Log In to MAS Manage 
