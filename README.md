@@ -464,11 +464,13 @@ With user accounts like "maxadmin", not the superuser account, you can choose th
 
 ![Maximo Log In](media/maximo-login-manage.png)
 
-## Custom Domain Name and DNS Server (Azure only)
+## Custom Domain Name and DNS Server 
 
-When creating a Red Hat OpenShift cluster, you can specify the domain name, e.g. example.com. For more details, check [Deploy an Azure Red Hat OpenShift cluster](https://learn.microsoft.com/en-us/azure/openshift/quickstart-portal).
+You can configure a custom domain name for your applications on AWS. For more details, check [Configuring custom domains for applications](https://docs.openshift.com/rosa/applications/deployments/osd-config-custom-domains-applications.html).
 
-You can change the DNS server for an existing cluster. Run the `oc` command to determine eligibility. For more details, check [Configure custom DNS for your Azure Red Hat OpenShift (ARO) cluster](https://learn.microsoft.com/en-us/azure/openshift/howto-custom-dns).
+When creating a Red Hat OpenShift cluster on Azure, you can specify the domain name, e.g. example.com. For more details, check [Deploy an Azure Red Hat OpenShift cluster](https://learn.microsoft.com/en-us/azure/openshift/quickstart-portal).
+
+You can change the DNS server for an existing cluster on Azure. Run the `oc` command to determine eligibility. For more details, check [Configure custom DNS for your Azure Red Hat OpenShift (ARO) cluster](https://learn.microsoft.com/en-us/azure/openshift/howto-custom-dns).
 
 ```
 oc get machineconfig | grep dns
