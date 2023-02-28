@@ -466,7 +466,7 @@ With user accounts like "maxadmin", not the superuser account, you can choose th
 
 ## Custom Domain Name and DNS Server 
 
-You can configure a custom domain name for your applications on AWS. For more details, check [Configuring custom domains for applications](https://docs.openshift.com/rosa/applications/deployments/osd-config-custom-domains-applications.html).
+You can configure a custom domain name for your applications on AWS. For more details, check [Configuring custom domains for applications](https://docs.openshift.com/rosa/applications/deployments/osd-config-custom-domains-applications.html), and [Implementing custom domain names with ROSA](https://aws.amazon.com/blogs/containers/implementing-custom-domain-names-with-rosa/).
 
 When creating a Red Hat OpenShift cluster on Azure, you can specify the domain name, e.g. example.com. For more details, check [Deploy an Azure Red Hat OpenShift cluster](https://learn.microsoft.com/en-us/azure/openshift/quickstart-portal).
 
