@@ -534,7 +534,7 @@ For cost estimates on OpenShift clusters, excluding licensing fees, consider the
 
 ### Maximo Costs on AWS
 
-You can find [Maximo pricing on AWS](https://aws.amazon.com/solutions/partners/ibm-maximo).
+You can find [Maximo pricing on AWS](https://aws.amazon.com/marketplace/pp/prodview-aehjeun4gvcis#pdp-pricing).
 
 ### Maximo Costs on Azure
 
