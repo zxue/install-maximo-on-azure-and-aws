@@ -90,6 +90,9 @@ ocs-storagecluster-ceph-rbd" storage class.
 
 ![OpenShift Storage System](media/ocp-storage-classes.png)
 
+[!Note] Make sure that you allocate adequate resources for worker nodes. For more details, see [ODF Resource requirements](https://access.redhat.com/documentation/en-us/red_hat_openshift_data_foundation/4.10/html-single/planning_your_deployment/index#resource-requirements_rhodf).
+
+
 ## Start the Docker Container
 
 Install docker on your computer, and run the docker command to launch the MAS cli instance. Alternatively, you can run Ansible playbooks locally, but the tradeoff is that you will need to install all dependencies, e.g python3. 
@@ -103,6 +106,204 @@ docker run -ti --rm --pull always -v ~/masconfig:/mascli/masconfig quay.io/ibmma
 - pull always: pull down image before running​
 - v: bind mount a volume. Local machine folder “~/masconfig”; container folder: “/mascli/masconfig”​
 - quay.io/ibmmas/cli: downloaded the mas cli image. Run "docker images" to see images available.
+
+## Run Ansible Playbook to Install MAS Core
+
+Log in to OpenShift and run the playbook to install MAS Core. This step may take one hour or longer. 
+
+Make sure that you remove any yaml files from previous installations.
+
+```
+oc login --token=xxx --server=https://api.xxx.westus.aroapp.io:6443
+
+ansible-playbook ibm.mas_devops.oneclick_core
+
+```
+
+Alternatively, you can run the playbook locally on a remote host, as explained in the [Ansible](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_delegation.html) documentation. The `-v` option is verbose mode (-vvv for more, -vvvv to enable connection debugging).
+
+```
+ansible-playbook ansible-devops/playbooks/oneclick_core.yml --connection=local -vvv
+```
+
+### Look Up MAS Admin URL and Superuser Credentials
+
+Navigate to the Routes screen under Networking from the OpenShift console. Copy the admin URL in the namespace for the MAS installation.
+
+Navigate to the Secrets screen under Workloads from the OpenShift console. Search "superuser", and open the one in the namespace for the MAS installation, e.g. "mas-poc10-core".
+
+![Look Up Superuser](media/lookup-superuser.png)
+
+Copy the values for password and username. Note that the password appears first and username second. You will use them to log in to the Maximo administration app. 
+
+![Superuser Credentials](media/superuser-credentials.png)
+
+Alternatively, use the `oc` command to look up the superuser credentials.
+
+```
+oc get projects | grep core
+oc get routes -n mas-xxx-core | grep admin
+oc get secrets -n mas-xxx-core | grep superuser
+oc get secret xxx-credentials-superuser -n mas-xxx-core  -o yaml
+echo "<password encoded string>"| base64 -d
+echo "<username encoded string>"| base64 -d
+```
+
+### Download and Configure MAS Certificate
+
+When navigating to the Maximo administration console in the browser, you are prompted with the "NET::ERR_CERT_AUTHORITY_INVALID". That is because the self-signed certificate is not trusted on your computer. 
+
+![Maximo Admin URL Error](media/maximo-admin-url-error.png)
+
+A quick workaround is that you press the "Advanced" button to continue and change "admin" to "api" in the URL address. You will see a screen with an error message that looks like the following. Change "api" back to "admin" in the URL address. You should land on the administration screen.
+
+![Maximo API URL error](media/maximo-api-url-error.png)
+
+For Maximo deployment on Azure, it is necessary that the certificate issue be addressed permanently. Go to Routes under Networking from the OpenShift console. Select the MAS namespace, e.g. mas-poc10-core, and open the admin route screen.
+
+![Maximo Admin Route](media/maximo-admin-route.png)
+
+Scroll down the screen to find the CA certificate. Copy the certificate and save it in a file, e.g. "ca.crt".
+
+![Maximo Admin Route](media/maximo-admin-route-certificate.png)
+
+On the MacBook, open the Keychain Access setting. Click the import items from the File menu. Locate the certificate file and import it. Select the imported item from the list, which is likely named something like "public.poc10.mas.imb.com". Double click on it and change the value of "when using this certificate" under Trust to "Always trust". Save the setting by entering your MacBook login password if prompted. You will notice that the icon next to the name from a red "x" to to a blue "+".
+
+![Maximo Admin Route](media/maximo-admin-route-certificate-trust.png)
+
+With that, you can open the Maximo administration application in the browser and log in without any certificate error prompt.
+
+### Update User Data Service (Azure Only)
+
+For Maximo deployment on Azure, you may notice an error from the command line that looks like the following. This error must be addressed before we activate the Manage application.
+
+```
+BAS configuration was unable to be verified: 
+Connecting to BAS (verify=/tmp/bas.pem) at https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io failed: 
+SSLError: HTTPSConnectionPool(host='uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io', port=443): 
+Max retries exceeded with url: /v1/status (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: 
+unable to get issuer certificate (_ssl.c:1131)')))
+```
+
+Log in to the Maximo administration console. Navigate to the admin with "/initialsetup", or click on the Configurations on the left side. We will need to update the URL, the AIP key, and the certificates. We will find these values from the OpenShift cluster.
+
+![User Data Services](media/user-data-services.png)
+
+Navigate to Secrets under Workloads from the OpenShift console. Search "event-api". Open the "event-api-secrets" screen, and copy the apikey value. Then open the "event-api-certs" screen, and copy the tls.crt value. Note that there are two certificates in the text. The first part includes all the text starting with the text "-----BEGIN CERTIFICATE-----" and ending with "-----END CERTIFICATE-----". The second part is the remaining text.
+
+![OCP Event API Secrets](media/ocp-event-api-secrets.png)
+
+Alternatively, you can get apikey and certificates using the `oc` command.
+
+```
+oc get secrets -n ibm-common-services | grep event-api
+oc get secret event-api-secret -n ibm-common-services -o yaml
+oc get secret event-api-certs -n ibm-common-services -o yaml
+echo "<apikey string>" | base64 -d
+echo "<tls.cert string>" | base64 -d
+```
+
+Go back to the User Data Services (UDS) in the Maximo administration console. Open the edit screen.
+
+- Replace the URL from the existing value, e.g. "https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io" to "".
+- Replace the API key with the value you obtained previously.
+- Delete three certificates named "part1", "part2" and "part3". Add the first certificate and name it "basCert1" using the first part of the certificates you obtained previously. Add the second certificate and name it "basCert2" using the second part of the certificates you obtained previously. Click "Confirm" to save the certificates. Click "Save" to save the changes.
+
+The update of UDS settings may take 15 minutes and you will see a green status icon if successful. If it takes longer than that, chances are that the changes are not working and you will need to repeat the process with the correct values.
+
+## Install DB2 and Activate MAS Manage
+
+We are now ready to install and activate Maximo Manage. Run the Ansible playbook below. A DB2 database will be created automatically, and the Manage application will be deployed. This step can take two hours or longer.
+
+```
+ansible-playbook ibm.mas_devops.oneclick_add_manage
+```
+
+Note that if you want to use an existing database, you can skip this step and go the database configuration instead.
+
+## Review and Connect to the Database
+
+Navigate to the Configurations screen from the Maximo administration console. Open the database connection view and the edit screen. 
+
+![Database Connection](media/database-connection.png)
+
+For IBM DB2 database, the connection string looks like the following. The default user name is "db2inst1". 
+
+```
+jdbc:db2://c-db2inst-db2u-engn-svc.db2u.svc:50001/BLUDB:sslConnection=true;sslVersion=TLSv1.2;
+```
+The password can be found in the Secrets under Workloads from the OpenShift Console. Search "password" in the namespace of "db2u". Open the "c-db2inst-instancepassword" screen and copy the password. If "SSL Enabled" is checked, make sure that the certificate has added. If not, you can find it from the "db2u-ca" secret in the namespace of "db2u".
+
+![DB2 password](media/db2-password.png)
+
+For Oracle database or Microsoft SQL Server database, obtain the connection string and user credentials and update them accordingly.
+
+It's worth noting that while Maximo Manage supports different database types, including DB2, DB2 Warehouse, Oracle database and SQL Server database, some Maximo applications require DB2. Check out the [Prerequisite software](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=overview-prerequisite-software).
+
+## Activate MAS Manage Manually
+
+When using an external database, you can activate MAS Manage manually through the administration console. For more details, refer to the documentation on [Activating Maximo Manage](https://www.ibm.com/docs/en/maximo-manage/continuous-delivery?topic=manage-activating-maximo) or [Deploying and activating Maximo Manage](https://www.ibm.com/docs/en/maximo-manage/8.0.0?topic=suite-deploying-activating-manage).
+
+
+## Log In to MAS Manage 
+
+As aforementioned, you can find the admin or home URL addresses from the Routes and log in with the superuser credentials. Once logged in, you can create new users, or modify existing users. For example, you can change the password for the built-in user account, "maxadmin".
+
+With user accounts like "maxadmin", not the superuser account, you can choose the Manage application or other applications by clicking the 9-dot AppSwitch icon from the upper right corner in the browser. 
+
+![Maximo Log In](media/maximo-login-manage.png)
+
+## Custom Domain Name and DNS Server 
+
+You can configure a custom domain name for your applications on AWS. For more details, check [Configuring custom domains for applications](https://docs.openshift.com/rosa/applications/deployments/osd-config-custom-domains-applications.html), and [Implementing custom domain names with ROSA](https://aws.amazon.com/blogs/containers/implementing-custom-domain-names-with-rosa/).
+
+When creating a Red Hat OpenShift cluster on Azure, you can specify the domain name, e.g. example.com. For more details, check [Deploy an Azure Red Hat OpenShift cluster](https://learn.microsoft.com/en-us/azure/openshift/quickstart-portal).
+
+You can change the DNS server for an existing cluster on Azure. Run the `oc` command to determine eligibility. For more details, check [Configure custom DNS for your Azure Red Hat OpenShift (ARO) cluster](https://learn.microsoft.com/en-us/azure/openshift/howto-custom-dns).
+
+```
+oc get machineconfig | grep dns
+99-master-aro-dns                                                                             2.2.0             3d17h
+99-worker-aro-dns                                                                             2.2.0             3d17h
+```
+
+## Install Demo Data for MAS Manage
+
+If you use the "mas install" pipelines, you can choose the include demo data for Maximo Manage.
+
+![Maximo Manage Demo Data with Mas Install](media/maximo-demo-data-masinstall.png)
+
+If you use the the Ansible playbooks, you can take the following steps to apply demo data. This option has not been fully tested.
+
+### Update the ManageWorkspace custom resource 
+
+Navigate to CustomResourceDefinitions under Administration from the OpenShift console. Search and find the custom resource, ManageWorkspace. The CR resource is created after MAS Manage activation.
+
+![OpenShift ManageWorkspace](media/ocp-manageworkspace.png)
+
+Open the YAML screen and update the "demodata" value at line 68 from "false" to "true".
+
+![OpenShift CR YAML Demo Data](media/ocp-cr-yaml-demodata.png)
+
+### Update the database in the pod
+
+For DB2, the default user name is db2inst1. The database password is created and stored in the pod named something like  "c-db2inst-instancepassword". Make a note of it for use later.
+
+To the the pod named something like "c-db2inst-db2u-0" in the namespace of "db2u". Navigate to the Terminal tab of the pod. Connect to DB2 with the default username and password. Delete the maxvars table in the Maximo schema, which contains 1271 or so tables. The maxvars table will be re-created and demo data added once Maximo Manage is reconciled.
+
+```
+su db2inst1
+db2 connect to BLUDB user db2inst1 using <password>
+db2 list tables for schema MAXIMO
+db2look -d BLUDB -e -t MAXIMO.MAXVARS
+db2
+  select varname from maximo.maxvars
+  drop table maximo.maxvars;
+  quit
+exit
+```
+
+![OCP DB2 Connection](media/ocp-db2-connection.png)
 
 ## Install Maximo Using MAS CLI (AWS only)
 
@@ -317,204 +518,6 @@ View progress:
 You can check the installation status from the OpenShift console. 
 
 ![OCP Pipelines Status](media/mas-install-pipelines.png)
-
-## Run Ansible Playbook to Install MAS Core
-
-Log in to OpenShift and run the playbook to install MAS Core. This step may take one hour or longer. 
-
-Make sure that you remove any yaml files from previous installations.
-
-```
-oc login --token=xxx --server=https://api.xxx.westus.aroapp.io:6443
-
-ansible-playbook ibm.mas_devops.oneclick_core
-
-```
-
-Alternatively, you can run the playbook locally on a remote host, as explained in the [Ansible](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_delegation.html) documentation. The `-v` option is verbose mode (-vvv for more, -vvvv to enable connection debugging).
-
-```
-ansible-playbook ansible-devops/playbooks/oneclick_core.yml --connection=local -vvv
-```
-
-### Look Up MAS Admin URL and Superuser Credentials
-
-Navigate to the Routes screen under Networking from the OpenShift console. Copy the admin URL in the namespace for the MAS installation.
-
-Navigate to the Secrets screen under Workloads from the OpenShift console. Search "superuser", and open the one in the namespace for the MAS installation, e.g. "mas-poc10-core".
-
-![Look Up Superuser](media/lookup-superuser.png)
-
-Copy the values for password and username. Note that the password appears first and username second. You will use them to log in to the Maximo administration app. 
-
-![Superuser Credentials](media/superuser-credentials.png)
-
-Alternatively, use the `oc` command to look up the superuser credentials.
-
-```
-oc get projects | grep core
-oc get routes -n mas-xxx-core | grep admin
-oc get secrets -n mas-xxx-core | grep superuser
-oc get secret xxx-credentials-superuser -n mas-xxx-core  -o yaml
-echo "<password encoded string>"| base64 -d
-echo "<username encoded string>"| base64 -d
-```
-
-### Download and Configure MAS Certificate
-
-When navigating to the Maximo administration console in the browser, you are prompted with the "NET::ERR_CERT_AUTHORITY_INVALID". That is because the self-signed certificate is not trusted on your computer. 
-
-![Maximo Admin URL Error](media/maximo-admin-url-error.png)
-
-A quick workaround is that you press the "Advanced" button to continue and change "admin" to "api" in the URL address. You will see a screen with an error message that looks like the following. Change "api" back to "admin" in the URL address. You should land on the administration screen.
-
-![Maximo API URL error](media/maximo-api-url-error.png)
-
-For Maximo deployment on Azure, it is necessary that the certificate issue be addressed permanently. Go to Routes under Networking from the OpenShift console. Select the MAS namespace, e.g. mas-poc10-core, and open the admin route screen.
-
-![Maximo Admin Route](media/maximo-admin-route.png)
-
-Scroll down the screen to find the CA certificate. Copy the certificate and save it in a file, e.g. "ca.crt".
-
-![Maximo Admin Route](media/maximo-admin-route-certificate.png)
-
-On the MacBook, open the Keychain Access setting. Click the import items from the File menu. Locate the certificate file and import it. Select the imported item from the list, which is likely named something like "public.poc10.mas.imb.com". Double click on it and change the value of "when using this certificate" under Trust to "Always trust". Save the setting by entering your MacBook login password if prompted. You will notice that the icon next to the name from a red "x" to to a blue "+".
-
-![Maximo Admin Route](media/maximo-admin-route-certificate-trust.png)
-
-With that, you can open the Maximo administration application in the browser and log in without any certificate error prompt.
-
-### Update User Data Service (Azure Only)
-
-For Maximo deployment on Azure, you may notice an error from the command line that looks like the following. This error must be addressed before we activate the Manage application.
-
-```
-BAS configuration was unable to be verified: 
-Connecting to BAS (verify=/tmp/bas.pem) at https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io failed: 
-SSLError: HTTPSConnectionPool(host='uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io', port=443): 
-Max retries exceeded with url: /v1/status (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: 
-unable to get issuer certificate (_ssl.c:1131)')))
-```
-
-Log in to the Maximo administration console. Navigate to the admin with "/initialsetup", or click on the Configurations on the left side. We will need to update the URL, the AIP key, and the certificates. We will find these values from the OpenShift cluster.
-
-![User Data Services](media/user-data-services.png)
-
-Navigate to Secrets under Workloads from the OpenShift console. Search "event-api". Open the "event-api-secrets" screen, and copy the apikey value. Then open the "event-api-certs" screen, and copy the tls.crt value. Note that there are two certificates in the text. The first part includes all the text starting with the text "-----BEGIN CERTIFICATE-----" and ending with "-----END CERTIFICATE-----". The second part is the remaining text.
-
-![OCP Event API Secrets](media/ocp-event-api-secrets.png)
-
-Alternatively, you can get apikey and certificates using the `oc` command.
-
-```
-oc get secrets -n ibm-common-services | grep event-api
-oc get secret event-api-secret -n ibm-common-services -o yaml
-oc get secret event-api-certs -n ibm-common-services -o yaml
-echo "<apikey string>" | base64 -d
-echo "<tls.cert string>" | base64 -d
-```
-
-Go back to the User Data Services (UDS) in the Maximo administration console. Open the edit screen.
-
-- Replace the URL from the existing value, e.g. "https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io" to "".
-- Replace the API key with the value you obtained previously.
-- Delete three certificates named "part1", "part2" and "part3". Add the first certificate and name it "basCert1" using the first part of the certificates you obtained previously. Add the second certificate and name it "basCert2" using the second part of the certificates you obtained previously. Click "Confirm" to save the certificates. Click "Save" to save the changes.
-
-The update of UDS settings may take 15 minutes and you will see a green status icon if successful. If it takes longer than that, chances are that the changes are not working and you will need to repeat the process with the correct values.
-
-## Install DB2 and Activate MAS Manage
-
-We are now ready to install and activate Maximo Manage. Run the Ansible playbook below. A DB2 database will be created automatically, and the Manage application will be deployed. This step can take two hours or longer.
-
-```
-ansible-playbook ibm.mas_devops.oneclick_add_manage
-```
-
-Note that if you want to use an existing database, you can skip this step and go the database configuration instead.
-
-## Review and Connect to the Database
-
-Navigate to the Configurations screen from the Maximo administration console. Open the database connection view and the edit screen. 
-
-![Database Connection](media/database-connection.png)
-
-For IBM DB2 database, the connection string looks like the following. The default user name is "db2inst1". 
-
-```
-jdbc:db2://c-db2inst-db2u-engn-svc.db2u.svc:50001/BLUDB:sslConnection=true;sslVersion=TLSv1.2;
-```
-The password can be found in the Secrets under Workloads from the OpenShift Console. Search "password" in the namespace of "db2u". Open the "c-db2inst-instancepassword" screen and copy the password. If "SSL Enabled" is checked, make sure that the certificate has added. If not, you can find it from the "db2u-ca" secret in the namespace of "db2u".
-
-![DB2 password](media/db2-password.png)
-
-For Oracle database or Microsoft SQL Server database, obtain the connection string and user credentials and update them accordingly.
-
-It's worth noting that while Maximo Manage supports different database types, including DB2, DB2 Warehouse, Oracle database and SQL Server database, some Maximo applications require DB2. Check out the [Prerequisite software](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=overview-prerequisite-software).
-
-## Activate MAS Manage Manually
-
-When using an external database, you can activate MAS Manage manually through the administration console. For more details, refer to the documentation on [Activating Maximo Manage](https://www.ibm.com/docs/en/maximo-manage/continuous-delivery?topic=manage-activating-maximo) or [Deploying and activating Maximo Manage](https://www.ibm.com/docs/en/maximo-manage/8.0.0?topic=suite-deploying-activating-manage).
-
-
-## Log In to MAS Manage 
-
-As aforementioned, you can find the admin or home URL addresses from the Routes and log in with the superuser credentials. Once logged in, you can create new users, or modify existing users. For example, you can change the password for the built-in user account, "maxadmin".
-
-With user accounts like "maxadmin", not the superuser account, you can choose the Manage application or other applications by clicking the 9-dot AppSwitch icon from the upper right corner in the browser. 
-
-![Maximo Log In](media/maximo-login-manage.png)
-
-## Custom Domain Name and DNS Server 
-
-You can configure a custom domain name for your applications on AWS. For more details, check [Configuring custom domains for applications](https://docs.openshift.com/rosa/applications/deployments/osd-config-custom-domains-applications.html), and [Implementing custom domain names with ROSA](https://aws.amazon.com/blogs/containers/implementing-custom-domain-names-with-rosa/).
-
-When creating a Red Hat OpenShift cluster on Azure, you can specify the domain name, e.g. example.com. For more details, check [Deploy an Azure Red Hat OpenShift cluster](https://learn.microsoft.com/en-us/azure/openshift/quickstart-portal).
-
-You can change the DNS server for an existing cluster on Azure. Run the `oc` command to determine eligibility. For more details, check [Configure custom DNS for your Azure Red Hat OpenShift (ARO) cluster](https://learn.microsoft.com/en-us/azure/openshift/howto-custom-dns).
-
-```
-oc get machineconfig | grep dns
-99-master-aro-dns                                                                             2.2.0             3d17h
-99-worker-aro-dns                                                                             2.2.0             3d17h
-```
-
-## Install Demo Data for MAS Manage
-
-If you use the "mas install" pipelines, you can choose the include demo data for Maximo Manage.
-
-![Maximo Manage Demo Data with Mas Install](media/maximo-demo-data-masinstall.png)
-
-If you use the the Ansible playbooks, you can take the following steps to apply demo data. This option has not been fully tested.
-
-### Update the ManageWorkspace custom resource 
-
-Navigate to CustomResourceDefinitions under Administration from the OpenShift console. Search and find the custom resource, ManageWorkspace. The CR resource is created after MAS Manage activation.
-
-![OpenShift ManageWorkspace](media/ocp-manageworkspace.png)
-
-Open the YAML screen and update the "demodata" value at line 68 from "false" to "true".
-
-![OpenShift CR YAML Demo Data](media/ocp-cr-yaml-demodata.png)
-
-### Update the database in the pod
-
-For DB2, the default user name is db2inst1. The database password is created and stored in the pod named something like  "c-db2inst-instancepassword". Make a note of it for use later.
-
-To the the pod named something like "c-db2inst-db2u-0" in the namespace of "db2u". Navigate to the Terminal tab of the pod. Connect to DB2 with the default username and password. Delete the maxvars table in the Maximo schema, which contains 1271 or so tables. The maxvars table will be re-created and demo data added once Maximo Manage is reconciled.
-
-```
-su db2inst1
-db2 connect to BLUDB user db2inst1 using <password>
-db2 list tables for schema MAXIMO
-db2look -d BLUDB -e -t MAXIMO.MAXVARS
-db2
-  select varname from maximo.maxvars
-  drop table maximo.maxvars;
-  quit
-exit
-```
-
-![OCP DB2 Connection](media/ocp-db2-connection.png)
 
 ## Estimate Maximo License Requirements for Dev or Test Environment
 
