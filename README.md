@@ -90,7 +90,7 @@ ocs-storagecluster-ceph-rbd" storage class.
 
 ![OpenShift Storage System](media/ocp-storage-classes.png)
 
-[!Note] Make sure that you allocate adequate resources for worker nodes. For more details, see [ODF Resource requirements](https://access.redhat.com/documentation/en-us/red_hat_openshift_data_foundation/4.10/html-single/planning_your_deployment/index#resource-requirements_rhodf).
+> **Note** Make sure that you allocate adequate resources for worker nodes. For more details, see [ODF Resource requirements](https://access.redhat.com/documentation/en-us/red_hat_openshift_data_foundation/4.10/html-single/planning_your_deployment/index#resource-requirements_rhodf).
 
 
 ## Start the Docker Container
