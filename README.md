@@ -205,7 +205,7 @@ echo "<tls.cert string>" | base64 -d
 
 Go back to the User Data Services (UDS) in the Maximo administration console. Open the edit screen.
 
-- Replace the URL from the existing value, e.g. "https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io" to "".
+- Replace the URL from the existing value, e.g. "https://uds-endpoint-ibm-common-services.apps.bulqajcq.westus.aroapp.io" to "https://event-api-service.ibm-common-services.svc:8443".
 - Replace the API key with the value you obtained previously.
 - Delete three certificates named "part1", "part2" and "part3". Add the first certificate and name it "basCert1" using the first part of the certificates you obtained previously. Add the second certificate and name it "basCert2" using the second part of the certificates you obtained previously. Click "Confirm" to save the certificates. Click "Save" to save the changes.
 
