@@ -238,6 +238,8 @@ The password can be found in the Secrets under Workloads from the OpenShift Cons
 
 For Oracle database or Microsoft SQL Server database, obtain the connection string and user credentials and update them accordingly.
 
+Connecting to the database and loading the settings can take some time. However, if the database connection or configuration seems to take a long time, you can check maxinst pod and run a Linux command `ps aux` and see if updatedb or maxinst processes are running. Also, you can check the status of WorkspaceManage CR, and see the status of the deployment and the database.
+
 It's worth noting that while Maximo Manage supports different database types, including DB2, DB2 Warehouse, Oracle database and SQL Server database, some Maximo applications require DB2. Check out the [Prerequisite software](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=overview-prerequisite-software).
 
 ## Activate MAS Manage Manually
