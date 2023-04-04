@@ -280,6 +280,17 @@ exit
 
 ![OCP DB2 Connection](media/ocp-db2-connection.png)
 
+## Logging and Monitoring in Maximo Manage
+
+Maximo Manage includes a monitoring agent that collects statistics about application usage and performance. Administrators can configure Prometheus service monitoring and then use visualization software, such as Grafana, to view usage information that the agent collects. Check [Monitoring agent for Maximo Manage](https://www.ibm.com/docs/en/maximo-manage/continuous-delivery?topic=deploy-monitoring-agent-maximo-manage)
+
+To ingest metrics from Maximo Prometheus (prometheus.io) to tools like Splunk, check [Prometheus Metrics for Splunk](https://apps.splunk.com/app/4077/)
+
+- The first is via polling a Prometheus exporter, or the federation endpoint on a Prometheus server from Splunk. 
+- The second opens up a TCP port which can act as a remote write target for one or more Prometheus servers.
+
+The Splunk add-on is available in github, [Prometheus Metrics for Splunk](https://github.com/lukemonahan/splunk_modinput_prometheus)
+
 ## Install Maximo Using MAS CLI (AWS only)
 
 For Maximo deployment on AWS, you can run the cli command below. As an option, you can include demo data. Both MAS Manage and Health are installed.
