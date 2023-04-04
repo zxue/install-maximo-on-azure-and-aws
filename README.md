@@ -66,33 +66,6 @@ Alternatively, you can locate the name using the `oc` command.
 oc get secrets -n openshift-ingress | grep ingress
 ```
 
-## Install OpenShift® Data Foundation (ODF) Storage Classes (Azure only)
-
-Maximo Application Suite and its dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:
-  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.
-  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.
-
-By default, an OpenShift cluster on Azure comes with two storage classes. While it is possible to use them to run the Ansible playbooks, it is much easier to work with ODF, previously known as OpenShift Container Storage (OCS). 
-
-  - Storage class (ReadWriteOnce): managed-csi
-  - Storage class (ReadWriteMany): managed-premium
-
-To install ODF, search "ODF" under Operators | OperatorHub from the OpenShift console. Choose the default options to complete the step. 
-
-![OpenShift Data Foundation Install](media/ocp-odf-install.png)
-
-Once ODF is installed, create a StorageSystem instance. Create 2 TiB or more storage on at least 3 worker nodes.
-
-![OpenShift Storage System](media/odf-storage-system.png)
-
-When the StorageSystem instance is created, three new storage classes are added. By default, the Ansible playbooks use the "
-ocs-storagecluster-ceph-rbd" storage class.
-
-![OpenShift Storage System](media/ocp-storage-classes.png)
-
-> **Note:** Make sure that you allocate adequate resources for worker nodes. For more details, see [ODF Resource requirements](https://access.redhat.com/documentation/en-us/red_hat_openshift_data_foundation/4.10/html-single/planning_your_deployment/index#resource-requirements_rhodf).
-
-
 ## Start the Docker Container
 
 Install docker on your computer, and run the docker command to launch the MAS cli instance. Alternatively, you can run Ansible playbooks locally, but the tradeoff is that you will need to install all dependencies, e.g python3. 
